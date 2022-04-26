@@ -97,18 +97,27 @@ namespace Schnupperspiel{
 
             //Zeittext
 
+            game.setTextTimePosition(1050, 10);
+            game.setTextTimeSize(94, 44);
 
             //Punktetext
 
+            game.setTextScorePosition(1050, 70);
+            game.setTextScoreSize(94, 44);
 
             //Höchstpunktezahltext
 
+            game.setTextHighscorePosition(1050, 130);
+            game.setTextScoreSize(94, 44);
 
             //Interval Spieltimer
 
+            game.setTime(60);
+            game.setTimerGameInterval(1000);
 
             //Interval Münzentimer
 
+            game.setTimerCoinInterval(100);
 
             //Spieler
 
@@ -125,12 +134,21 @@ namespace Schnupperspiel{
 
         //Spieltimer
         private void tmrGame_Tick(object sender, EventArgs e){
-
+            if (game.getTime() <= 0)
+            {
+                game.timeIsUp();
+                game.stopGame();
+            }
         }
 
         //Münzentimer
         private void tmrCoin_Tick(object sender, EventArgs e){
-            
+            if (game.getNumberOfCoinList() < 10)
+            {
+                xCoin = random.Next(20, game.getPanelWidth() - 40);
+                yCoin = random.Next(20, game.getPanelHeight() - 40);
+                createCoin();
+            }
         }
 
         private void tmrEnemy_Tick(object sender, EventArgs e){
@@ -139,7 +157,9 @@ namespace Schnupperspiel{
         private void tmrSpeed_Tick(object sender, EventArgs e){             
         }
         private void createCoin(){
-      
+            game.setCoinPosition(xCoin, yCoin);
+            game.setCoinSize(20, 20);
+            game.addCoinToList();
         }
 
     }
