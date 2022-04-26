@@ -29,6 +29,9 @@ namespace Schnupperspiel{
         private int xCoin;  
         private int yCoin;
 
+        //Variablen deklarieren für Bot
+        private Boolean enemyBotTurn = true;
+
         //Konstruktor: Kompontenten hinzufügen
         public frmGame() {
             InitializeComponent();
@@ -45,6 +48,8 @@ namespace Schnupperspiel{
             Timer tmrEnemy = game.tmrEnemy;
             tmrEnemy.Tick += new System.EventHandler(this.tmrEnemy_Tick);
             Timer tmrSpeed = game.tmrSpeed;
+            Button btnSpeed = game.btnSpeed;
+            btnSpeed.Click += new System.EventHandler(this.btnSpeed_Click);
             tmrSpeed.Tick += new System.EventHandler(this.tmrSpeed_Tick);
             game.makeGame(this);
 
@@ -70,6 +75,14 @@ namespace Schnupperspiel{
 
             //Speedknopf
 
+            
+            
+
+
+            game.setButtonSpeedColour(255, 255, 255);
+            game.setButtonSpeedPosition(412, 550);
+            game.setButtonSpeedSize(181, 62);
+            game.setButtonSpeedText("Speed");
 
             //Zeitlabel
 
@@ -134,6 +147,13 @@ namespace Schnupperspiel{
 
             //Wand
 
+            game.setWallPosition(430, 110);
+            game.setWallSize(30, 150);
+            game.setWallColour(255, 255, 255);
+
+            //Bot
+            createEnemyBot();
+
         }     
 
         //Spieltimer
@@ -144,9 +164,10 @@ namespace Schnupperspiel{
                 game.stopGame();
                 showHighscore();
             }
-            if(game.getNumberOfEnemyList() == 0)
+            if(game.getNumberOfEnemyList() < 2)
             {
                 createEnemy();
+                createEnemyBot();
             }
         }
 
@@ -165,10 +186,10 @@ namespace Schnupperspiel{
 
         private void tmrEnemy_Tick(object sender, EventArgs e){
             moveEnemy();
+            moveEnemyBot();
 
         }
-        private void tmrSpeed_Tick(object sender, EventArgs e){             
-        }
+       
         private void createCoin(){
             while (game.checkCoinPosition(xCoin, yCoin))
             {
@@ -187,19 +208,19 @@ namespace Schnupperspiel{
 
         private void movePlayer(object sender, KeyEventArgs key)
         {
-            if(key.KeyCode == Keys.D && game.checkPanelRight())
+            if(key.KeyCode == Keys.D && game.checkPanelRight() && game.checkWallLeft())
             {
                 game.movePlayerRight();
             }
-            if(key.KeyCode == Keys.A && game.checkPanelLeft())
+            if(key.KeyCode == Keys.A && game.checkPanelLeft() && game.checkWallRight())
             {
                 game.movePlayerLeft();
             }
-            if(key.KeyCode==Keys.S && game.checkPanelBottom())
+            if(key.KeyCode==Keys.S && game.checkPanelBottom() && game.checkWallTop())
             {
                 game.movePlayerDown();
             }
-            if(key.KeyCode==Keys.W && game.checkPanelTop())
+            if(key.KeyCode==Keys.W && game.checkPanelTop() && game.checkWallBottom())
             {
                 game.movePlayerUp();
             }
@@ -225,23 +246,78 @@ namespace Schnupperspiel{
 
         private void moveEnemy()
         {
-            if(game.getEnemyTop() < game.getPlayerTop())
+            if(game.getEnemyTop() < game.getPlayerTop() && game.enemyWallTop())
             {
                 game.moveEnemyUp();
             }
-            if(game.getEnemyTop() > game.getPlayerTop())
+            if(game.getEnemyTop() > game.getPlayerTop() && game.enemyWallBottom())
             {
                 game.moveEnemyDown();
             }
-            if(game.getEnemyLeft() < game.getPlayerLeft())
+            if(game.getEnemyLeft() < game.getPlayerLeft() && game.enemyWallRight())
             {
                 game.moveEnemyRight();
             }
-            if(game.getEnemyLeft() > game.getPlayerLeft())
+            if(game.getEnemyLeft() > game.getPlayerLeft() && game.enemyWallLeft())
             {
                 game.moveEnemyLeft();
             }
         }
 
+        private void createEnemyBot()
+        {
+            game.setEnemyBotPosition(40, 40);
+            game.setEnemyBotSize(50, 50);
+            game.setEnemyBotSpeed(1);
+            game.addEnemyBotToList();
+        }
+
+        private void moveEnemyBot()
+        {
+            if (enemyBotTurn)
+            {
+                game.moveEnemyBotRight();
+            }
+            else
+            {
+                game.moveEnemyBotLeft();
+            }
+
+            if(game.getEnemyBotLeft() > 600)
+            {
+                enemyBotTurn = false;
+            }
+
+            if(game.getEnemyBotLeft() < game.getEnemyBotPositionX())
+            {
+                enemyBotTurn = true;
+            }
+        }
+
+        private void btnSpeed_Click(object sender, EventArgs e)
+        {
+            game.setAddedPlayerSpeed(5);
+            game.setTimerSpeedInterval(1000);
+            game.setSpeedTime(5);
+            game.setSpeedDelay(10);
+        }
+        private void tmrSpeed_Tick(object sender, EventArgs e)
+        {
+            int speed;
+            int time = game.getSpeedTime();
+
+            if (time == 0)
+            {
+                speed = game.getPlayerSpeed();
+                speed -= game.getAddedPlayerSpeed();
+                game.setPlayerSpeed(speed);
+            }
+
+            if (game.getSpeedTime() == game.getSpeedDelay() * -1)
+            {
+                game.tmrSpeed.Enabled = false;
+                game.btnSpeed.Enabled = true;
+            }
+        }
     }
 }
