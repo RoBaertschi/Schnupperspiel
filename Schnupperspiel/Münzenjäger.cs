@@ -22,8 +22,8 @@ namespace Schnupperspiel{
         private Random random = new Random();
 
         //Variablen deklarieren für Position von Spieler
-        public static int xPlayer;
-        public static int yPlayer;
+        public static int xPlayer = 750;
+        public static int yPlayer = 450;
 
         //Variablen deklarieren für Position von Münzen
         private int xCoin;  
@@ -121,12 +121,16 @@ namespace Schnupperspiel{
 
             //Spieler
 
+            createPlayer();
 
             //Spielersteuerung
 
+            KeyDown += new KeyEventHandler(movePlayer);
+            KeyPreview = true;
 
             //Interval Gegnertimer
 
+            game.setTimerEnemyInterval(10);
 
             //Wand
 
@@ -138,6 +142,11 @@ namespace Schnupperspiel{
             {
                 game.timeIsUp();
                 game.stopGame();
+                showHighscore();
+            }
+            if(game.getNumberOfEnemyList() == 0)
+            {
+                createEnemy();
             }
         }
 
@@ -149,17 +158,89 @@ namespace Schnupperspiel{
                 yCoin = random.Next(20, game.getPanelHeight() - 40);
                 createCoin();
             }
+            game.LookForCoin(10);
+            game.setScore(game.getPoints());
+            game.LookForEnemy();
         }
 
         private void tmrEnemy_Tick(object sender, EventArgs e){
+            moveEnemy();
 
         }
         private void tmrSpeed_Tick(object sender, EventArgs e){             
         }
         private void createCoin(){
-            game.setCoinPosition(xCoin, yCoin);
-            game.setCoinSize(20, 20);
-            game.addCoinToList();
+            while (game.checkCoinPosition(xCoin, yCoin))
+            {
+                game.setCoinPosition(xCoin, yCoin);
+                game.setCoinSize(20, 20);
+                game.addCoinToList();
+            }
+        }
+
+        private void createPlayer()
+        {
+            game.setPlayerSpeed(4);
+            game.setPlayerSize(50, 50);
+            game.setPlayerPosition(xPlayer, yPlayer);
+        }
+
+        private void movePlayer(object sender, KeyEventArgs key)
+        {
+            if(key.KeyCode == Keys.D && game.checkPanelRight())
+            {
+                game.movePlayerRight();
+            }
+            if(key.KeyCode == Keys.A && game.checkPanelLeft())
+            {
+                game.movePlayerLeft();
+            }
+            if(key.KeyCode==Keys.S && game.checkPanelBottom())
+            {
+                game.movePlayerDown();
+            }
+            if(key.KeyCode==Keys.W && game.checkPanelTop())
+            {
+                game.movePlayerUp();
+            }
+
+            game.setPlayerPosition(game.getPlayerPositionX(), game.getPlayerPositionY());
+        }
+
+        private void showHighscore()
+        {
+            if(game.getPoints() > game.getHighscore())
+            {
+                game.setHighscore(game.getPoints());
+            }
+        }
+
+        private void createEnemy()
+        {
+            game.setEnemyPosition(5, 5);
+            game.setEnemySize(50, 50);
+            game.setEnemySpeed(1);
+            game.addEnemyToList();
+        }
+
+        private void moveEnemy()
+        {
+            if(game.getEnemyTop() < game.getPlayerTop())
+            {
+                game.moveEnemyUp();
+            }
+            if(game.getEnemyTop() > game.getPlayerTop())
+            {
+                game.moveEnemyDown();
+            }
+            if(game.getEnemyLeft() < game.getPlayerLeft())
+            {
+                game.moveEnemyRight();
+            }
+            if(game.getEnemyLeft() > game.getPlayerLeft())
+            {
+                game.moveEnemyLeft();
+            }
         }
 
     }
