@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace Schnupperspiel
 {
@@ -77,6 +78,10 @@ namespace Schnupperspiel
         private Timer tmrSwitch = new Timer();
         public Timer tmrSpeed = new Timer();
 
+        public Game()
+        {
+            
+        }
 
         /*
          * Setters (ohne Rückgabewert / mit Paramenter)
@@ -163,11 +168,6 @@ namespace Schnupperspiel
         }
         public void setLabelTimeText(String text){
             lblTime.Text = text;
-        }
-
-        public void setLabelTimeColor(int r, int g, int b)
-        {
-            lblTime.BackColor = Color.FromArgb(r,g,b);
         }
 
         //Punktelable-Setters

@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Windows.Storage;
 
 
 // !! ALS STARTDATEI "Schnupperspiel.csproj - Debug|AnyCPU" auswählen !!
@@ -15,8 +17,12 @@ namespace Schnupperspiel{
 
     public partial class frmGame : Form{
 
+
+
         //Auf die andere Klasse zugreifen
         public Game game = new Game();
+
+
 
         //Zufällig
         private Random random = new Random();
@@ -35,6 +41,17 @@ namespace Schnupperspiel{
         //Konstruktor: Kompontenten hinzufügen
         public frmGame() {
             InitializeComponent();
+            using (FileStream fs = File.Open("C:\\Users\\Softwareschmiede\\Desktop\\schnupperprojekt-main\\highscore.txt", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (BufferedStream bs = new BufferedStream(fs))
+            using (StreamReader sr = new StreamReader(bs))
+            {
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    this.game.setHighscore(Int16.Parse(line));
+                }
+            }
+
         }
 
 
@@ -125,7 +142,7 @@ namespace Schnupperspiel{
 
             //Interval Spieltimer
 
-            game.setTime(60);
+            game.setTime(10);
             game.setTimerGameInterval(1000);
 
             //Interval Münzentimer
@@ -230,10 +247,24 @@ namespace Schnupperspiel{
 
         private void showHighscore()
         {
-            if(game.getPoints() > game.getHighscore())
+            int highscore = (int)game.getHighscore();
+            if (game.getPoints() <= highscore)
             {
-                game.setHighscore(game.getPoints());
+                highscore = game.getPoints();
             }
+
+            FileStream fs = new FileStream("C:\\Users\\Softwareschmiede\\Desktop\\schnupperprojekt-main\\highscore.txt", FileMode.Create);
+            BufferedStream bs = new BufferedStream(fs);
+            string Shighscore = highscore.ToString();
+            for(int i = 0; i < Shighscore.Length; i++)
+            {
+                bs.WriteByte((byte)Shighscore[i]);
+            }
+
+            bs.Close();
+            
+
+            game.setHighscore(game.getPoints());
         }
 
         private void createEnemy()
